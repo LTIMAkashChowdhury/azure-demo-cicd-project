@@ -24,7 +24,7 @@ steps:
 # Step 4 - Copy WAR to Production VM
 - task: CopyFilesOverSSH@0
   inputs:
-    sshEndpoint: 'prod-vm-ssh'
+    sshEndpoint: 'azure-vm-server-connect'
     sourceFolder: '$(System.DefaultWorkingDirectory)/target'
     contents: '*.war'
     targetFolder: '/var/lib/tomcat10/webapps'
