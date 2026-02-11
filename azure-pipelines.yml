@@ -1,0 +1,38 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+
+# Step 1 - Make script executable
+- script: |
+    chmod +x build.sh
+  displayName: "Make build.sh executable"
+
+# Step 2 - Run build script
+- script: |
+    ./build.sh
+  displayName: "Run build.sh"
+
+# Step 3 - Verify WAR created
+- script: |
+    ls -l target
+  displayName: "Check generated artifacts"
+
+# Step 4 - Copy WAR to Production VM
+- task: CopyFilesOverSSH@0
+  inputs:
+    sshEndpoint: 'prod-vm-ssh'
+    sourceFolder: '$(System.DefaultWorkingDirectory)/target'
+    contents: '*.war'
+    targetFolder: '/var/lib/tomcat10/webapps'
+
+# Step 5 - Restart Tomcat
+- task: SSH@0
+  inputs:
+    sshEndpoint: 'azure-vm-server-connect'
+    runOptions: 'inline'
+    inline: |
+      sudo systemctl restart tomcat10
